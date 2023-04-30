@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 
+import '../../model/carts.dart';
+
 class AddProductToCart extends StatefulWidget {
   // const AddProductToCart({Key? key}) : super(key: key);
-  final Products product;
+   Products product;
 
   AddProductToCart({required this.product});
 
@@ -22,23 +24,23 @@ class _AddProductToCartState extends State<AddProductToCart> {
   //   // postData();
   // }
 
-  String uri = Utilities.url;
-
-  postData() async {
-    var response = await http.post(Uri.parse('$uri/api/orders/check'), body: {
-      "price": widget.product.price.toString(),
-      "title": widget.product.title,
-      "image": widget.product.image,
-      "id": widget.product.id.toString()
-
-      // widget.product
-    });
-    var response1 =
-        await http.get(Uri.parse('$uri/api/orders'));
-    print("cartpost " + response.body);
-    print("cart " + response1.body);
-    print("da nhanaa");
-  }
+  // String uri = Utilities.url;
+  //
+  // postData() async {
+  //   var response = await http.post(Uri.parse('$uri/api/orders/check'), body: {
+  //     "price": widget.product.price.toString(),
+  //     "title": widget.product.title,
+  //     "image": widget.product.image,
+  //     "id": widget.product.id.toString()
+  //
+  //     // widget.product
+  //   });
+  //   var response1 =
+  //       await http.get(Uri.parse('$uri/api/orders'));
+  //   print("cartpost " + response.body);
+  //   print("cart " + response1.body);
+  //   print("da nhanaa");
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -48,8 +50,8 @@ class _AddProductToCartState extends State<AddProductToCart> {
       child: ElevatedButton(
         onPressed: () {
           print("da nhan");
-          // Cart cart = Cart();
-          // cart.addProductsToCart(widget.product);
+          Cart cart = Cart();
+          cart.addProductsToCart(widget.product);
           // postData();
           // print("cart"+cart
           //     .getCart()

@@ -74,9 +74,9 @@ class _SignUpFormState extends State<SignUpForm> {
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
                     Navigator.pop(context,
-                        User(eMail: _email.text, password: _conform.text));
+                        User(eMail: _email.text, password: _conform.text,id: ""));
                     User user =
-                        User(eMail: _email.text, password: _conform.text);
+                        User(eMail: _email.text, password: _conform.text,);
                     postAccount();
 
                     //     id: await FlutterUdid.udid));

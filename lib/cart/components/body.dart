@@ -1,19 +1,25 @@
 import 'dart:convert';
+
 import 'package:demo/model/oder.dart';
+import 'package:demo/model/products.dart';
 import 'package:demo/model/user.dart';
 import 'package:demo/model/utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+import '../../model/carts.dart';
+import '../../model/user.dart';
 
 class Body extends StatefulWidget {
   // const Body({Key? key}) : super(key: key);
-   late User user;
+  late User user;
 
   @override
   State<Body> createState() => _BodyState();
 }
 
 class _BodyState extends State<Body> {
+  List<Products> cartdetail = Cart().getCart();
   String uri = Utilities.url;
 
   // List<Orders> cartdetail=Cart().getCart();
@@ -22,34 +28,29 @@ class _BodyState extends State<Body> {
   List<Orders> orders = [];
   Orders? order;
 
-  void getOder() async {
-    final response =
-    await http.get(Uri.parse('$uri/api/orders'));
-    if (response.statusCode == 200) {
-      print("order ${response.body}");
-      print(widget.user.eMail);
-
-      final body = jsonDecode(response.body);
-      var oder = body['order'];
-      for (var o in oder) {
-        setState(() {
-          orders.add(Orders.fromJson(o as Map<String, dynamic>));
-        });
-        for (int i = 0; i < orders.length; i++) {
-          orders[i].img =
-              Image.network('$uri/${orders[i].image}');
-          print(
-              '${orders[i].image} http://172.16.32.55:8000/${orders[i].image}');
-          setState(() {});
-        }
-      }
-    }
-  }
+  // void getOder() async {
+  //   final response = await http.get(Uri.parse('$uri/api/orders'));
+  //   if (response.statusCode == 200) {
+  //     print("order ${response.body}");
+  //     // print(widget.user.eMail);
+  //
+  //     final body = jsonDecode(response.body);
+  //     var oder = body['order'];
+  //     for (var o in oder) {
+  //       setState(() {
+  //         orders.add(Orders.fromJson(o as Map<String, dynamic>));
+  //       });
+  //       for (int i = 0; i < orders.length; i++) {
+  //         orders[i].img = Image.network('$uri/${orders[i].image}');
+  //         setState(() {});
+  //       }
+  //     }
+  //   }
+  // }
 
   delete() async {
     for (int i = 0; i < orders.length; i++) {
-      var response = await http
-          .delete(Uri.parse('$uri/api/orders/'));
+      var response = await http.delete(Uri.parse('$uri/api/orders/'));
       print("http://172.16.32.55:8000/api/orders/");
       print("delete ${response.body}");
     }
@@ -58,36 +59,56 @@ class _BodyState extends State<Body> {
 
   deleteOrder(int id) async {
     for (int i = 0; i < orders.length; i++) {
-      var response = await http
-          .delete(Uri.parse('$uri/api/orders/$id'));
+      var response = await http.delete(Uri.parse('$uri/api/orders/$id'));
       print("http://172.16.32.55:8000/api/orders/$id");
       print("delete ${response.body}");
     }
     print("da nhan delete");
   }
 
+
   postCheckout() async {
-    var res = await http.post(Uri.parse('$uri/api/checkout'),
-        body:
-        {
-        "id_user": widget.user.eMail,
-        });
-    print(widget.user.eMail);
+    final jsonList = jsonEncode(cartdetail.map((e) => e.toJson()).toList());
+    print("ac$jsonList");
+    final datalist = [
+      {"price": 15000, "title": "Cơm nắm", "image": "ic_black_coffee.png"}
+    ];
+    print("avc$datalist");
+    final user = Provider.of<User>(context,listen: false).id;
+    List<Map<String, dynamic>> products = List<Map<String, dynamic>>.from(
+        json.decode(jsonList));
+    Orders order = Orders(userId: user, products: products,
+
+    );
+    final res = await http.post(Uri.parse('$uri/api/checkout/'),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: order.toJson());
+    if (res.statusCode == 200) {
+      print("da up");
+      print(res.body);
+    } else {
+      print(res.body);
+      throw Exception('fail to uplad');
+    }
   }
 
   @override
   void initState() {
     super.initState();
-    getOder();
-    postCheckout();
-    // orders.forEach((order){sum=sum+order.price;});
+    // getOder();
+    // postCheckout();
+    cartdetail.forEach((cartdetail) {
+      sum = sum + cartdetail.price;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    orders.forEach((order) {
-      sum = sum + order.price;
-    });
+    // cartdetail.forEach((order) {
+    //   sum = sum + order.price;
+    // });
 
     return Container(
       width: MediaQuery
@@ -103,22 +124,27 @@ class _BodyState extends State<Body> {
           Expanded(
             child: ListView.builder(
                 shrinkWrap: true,
-                itemCount: orders.length,
+                itemCount: cartdetail.length,
                 itemBuilder: (context, index) {
                   return Column(
                     children: [
                       GestureDetector(
                         child: CartItem(
-                          orders: orders[index],
+                          // orders: orders[index],
+                          products: cartdetail[index],
                         ),
                         onTap: () {
                           setState(() {
-                            orders[index].id;
-                            deleteOrder(orders[index].id);
-                            orders.removeAt(index);
+                            cartdetail.removeAt(index);
                             sum = 0.0;
+                            cartdetail.forEach((element) {
+                              sum = sum + element.price;
+                            });
+                            // orders[index].id;
+                            // deleteOrder(orders[index].id);
+                            // orders.removeAt(index);
+                            // sum = 0.0;
                             // print("abc "+deleteOrder( orders[index].id));
-
                           });
                         },
                       ),
@@ -127,55 +153,59 @@ class _BodyState extends State<Body> {
                   );
                 }),
           ),
-          Row(children: [
-            Expanded(
-              child: TextButton(
-                style: ButtonStyle(
-                  shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(0.0),
-                      side: const BorderSide(color: Colors.green))),
-                  backgroundColor: const MaterialStatePropertyAll(Colors.white),
-                  side: const MaterialStatePropertyAll(
-                      BorderSide(color: Colors.green)),
-                  iconSize: const MaterialStatePropertyAll(
-                    50,
+          Row(
+            children: [
+              Expanded(
+                child: TextButton(
+                  style: ButtonStyle(
+                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(0.0),
+                        side: const BorderSide(color: Colors.green))),
+                    backgroundColor:
+                    const MaterialStatePropertyAll(Colors.white),
+                    side: const MaterialStatePropertyAll(
+                        BorderSide(color: Colors.green)),
+                    iconSize: const MaterialStatePropertyAll(
+                      50,
+                    ),
                   ),
-                ),
-                onPressed: () {},
-                child: Text(
-                  "Sum:${sum}",
-                  style: const TextStyle(
-                    fontSize: 14.0,
+                  onPressed: () {},
+                  child: Text(
+                    "Sum:${sum}",
+                    style: const TextStyle(
+                      fontSize: 14.0,
+                    ),
                   ),
                 ),
               ),
-            ),
-            Expanded(
-              child: TextButton(
-                style: ButtonStyle(
-                  shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(0.0))),
-                  side: const MaterialStatePropertyAll(
-                      BorderSide(color: Colors.green)),
-                ),
+              Expanded(
+                child: TextButton(
+                  style: ButtonStyle(
+                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(0.0))),
+                    side: const MaterialStatePropertyAll(
+                        BorderSide(color: Colors.green)),
+                  ),
 
-                // onPressed: (
-                //
-                //   )
-                //
-                onPressed: () {
-                  setState(() {
-                    delete();
-                    orders.clear();
-                  });
-                  // orders.clear();
-                  // delete();
-                },
-                child: Text("Check out".toUpperCase(),
-                    style: const TextStyle(fontSize: 14)),
-              ),
-            )
-          ],)
+                  // onPressed: (
+                  //
+                  //   )
+                  //
+                  onPressed: () {
+                    setState(() {
+                      // delete();
+                      postCheckout();
+                      cartdetail.clear();
+                    });
+                    // orders.clear();
+                    // delete();
+                  },
+                  child: Text("Check out".toUpperCase(),
+                      style: const TextStyle(fontSize: 14)),
+                ),
+              )
+            ],
+          )
           // CheckOutCart(
           //   sum: sum,
           //   orders: orders,
@@ -188,9 +218,10 @@ class _BodyState extends State<Body> {
 
 class CartItem extends StatelessWidget {
   // const CartItem({Key? key}) : super(key: key);
-  Orders orders;
+  // Orders orders;
+  Products products;
 
-  CartItem({required this.orders});
+  CartItem({required this.products});
 
   @override
   Widget build(BuildContext context) {
@@ -199,9 +230,9 @@ class CartItem extends StatelessWidget {
       padding: EdgeInsets.all(16),
       child: Row(
         children: [
-          SizedBox(width: 100, height: 100, child: orders.img),
-          Expanded(child: Text(orders.title)),
-          Expanded(child: Text(orders.price.toString())),
+          SizedBox(width: 100, height: 100, child: products.img),
+          Expanded(child: Text(products.title)),
+          Expanded(child: Text(products.price.toString())),
           Icon(Icons.delete_outline)
         ],
       ),

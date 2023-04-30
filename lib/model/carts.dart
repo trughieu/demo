@@ -1,13 +1,14 @@
 import 'package:demo/model/oder.dart';
 
 import 'products.dart';
+
 class Cart {
-  static List<Orders> cart=[];
+  static List<Products> cart=[];
   void
-   addProductsToCart(Orders product){
+   addProductsToCart(Products product){
     cart.add(product);
   }
-  List<Orders> getCart(){
+  List<Products> getCart(){
     return cart;
   }
 }

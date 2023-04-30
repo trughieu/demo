@@ -1,24 +1,24 @@
-import 'package:flutter/material.dart';
+import 'dart:convert';
 
 class Orders {
-  int price;
-  String title;
-  String image;
-  int id;
-  Image? img;
+  String userId;
+  List<Map<String, dynamic>> products;
 
-  Orders(
-      {required this.price,
-      required this.title,
-      required this.image,
-      required this.id});
+  Orders({
+    required this.userId,
+    required this.products,
+  });
 
-  factory Orders.fromJson(Map<String, dynamic> item) {
-    return Orders(
-      title: item['title'],
-      image: item['image'],
-      price: (item['price']),
-      id: item['id'],
-    );
-  }
+  Map<String, dynamic> toMap() => {
+        'userId': userId,
+        'products': products
+            .map((x) => {
+                  'image': x['image'] ?? "",
+                  'title': x['title'] ?? "",
+                  'price': x['price'] ?? 0.0,
+                })
+            .toList(),
+      };
+  String toJson() => json.encode(toMap());
+
 }
