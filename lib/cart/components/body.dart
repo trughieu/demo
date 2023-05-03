@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:demo/model/oder.dart';
 import 'package:demo/model/products.dart';
 import 'package:demo/model/user.dart';
+import 'package:demo/model/userProvider.dart';
 import 'package:demo/model/utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -68,18 +69,14 @@ class _BodyState extends State<Body> {
 
 
   postCheckout() async {
+
     final jsonList = jsonEncode(cartdetail.map((e) => e.toJson()).toList());
-    print("ac$jsonList");
-    final datalist = [
-      {"price": 15000, "title": "Cơm nắm", "image": "ic_black_coffee.png"}
-    ];
-    print("avc$datalist");
-    final user = Provider.of<User>(context,listen: false).id;
     List<Map<String, dynamic>> products = List<Map<String, dynamic>>.from(
         json.decode(jsonList));
-    Orders order = Orders(userId: user, products: products,
+    Orders order = Orders(userId: id, products: products,total: sum,
 
     );
+    print(products);
     final res = await http.post(Uri.parse('$uri/api/checkout/'),
         headers: {
           "Content-Type": "application/json",

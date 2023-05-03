@@ -3,14 +3,17 @@ import 'dart:convert';
 class Orders {
   String userId;
   List<Map<String, dynamic>> products;
+  double total;
 
   Orders({
     required this.userId,
     required this.products,
+    required this.total,
   });
 
   Map<String, dynamic> toMap() => {
         'userId': userId,
+        'total': total,
         'products': products
             .map((x) => {
                   'image': x['image'] ?? "",
@@ -19,6 +22,6 @@ class Orders {
                 })
             .toList(),
       };
-  String toJson() => json.encode(toMap());
 
+  String toJson() => json.encode(toMap());
 }

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class User {
   // String? id;
   String eMail;
@@ -12,15 +14,15 @@ class User {
     data['email'] = this.eMail;
     data['password'] = this.password;
     return data;
-    //
-    // return {
-    //   'email': eMail,
-    //   'password': password
-    //   // 'title': title,
-    //   // 'desc': description,
-    //   // 'img': image,
-    //   // 'price': price,
-    //   // '_id': id,
-    // };
   }
+  factory User.fromMap(Map<String, dynamic> map) {
+    return User(
+      id: map['id'] ?? '',
+      eMail: map['email'] ?? '',
+      password: map['password'] ?? ''
+    );
+  }
+  String Json() => json.encode(toJson());
+  factory User.fromJson(String source) => User.fromMap(json.decode(source));
+
 }

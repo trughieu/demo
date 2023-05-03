@@ -4,10 +4,18 @@ import 'package:demo/signin_form/splashpage.dart';
 import 'package:demo/signup/signup_page.dart';
 import 'package:flutter/material.dart';
 import 'package:demo/routes.dart';
-import 'homepage.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter/material.dart';
+
+import 'model/userProvider.dart';
 
 void main() {
-  runApp(const MyApp());
+  // runApp(const MyApp());
+  runApp(MultiProvider(providers: [
+    ChangeNotifierProvider(
+      create: (context) => UserProvider(),
+    ),
+  ], child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
