@@ -8,7 +8,7 @@ import 'package:simple_tags/simple_tags.dart';
 class Body extends StatefulWidget {
   Body({Key? key}) : super(key: key);
 
-  List<Products> dataProduct = <Products>[];
+  List<Products> dataProduct =[];
 
   List<String> tags = ["food", "categories", "bread"];
 
@@ -24,11 +24,18 @@ class _BodyState extends State<Body> {
   List<Products> productsResul = <Products>[];
   late TextEditingController textEditingController;
 
+  void loadData() async{
+    List<Products> products = await Utilities().getProducts();
+    setState(() {
+      widget.dataProduct = products;
+      print(widget.dataProduct);
+    });
+  }
   @override
   void initState() {
     super.initState();
+    loadData();
     textEditingController = TextEditingController();
-    print('class nay da chay');
   }
 
   Widget buildTag(BuildContext context) {
@@ -48,15 +55,13 @@ class _BodyState extends State<Body> {
             content: widget.tags,
             wrapSpacing: 4,
             wrapRunSpacing: 4,
-            onTagPress: (tag) {
-           // print(Utilities().find(tag));
+            onTagPress: (tag)  {
+              List<Products> foundProducts = Utilities().find(tag);
+
               setState(() {
                 widget.dataProduct.clear();
-                // widget.dataProduct.addAll(Utilities().find(tag));
-
+                widget.dataProduct.addAll(foundProducts);
               });
-              print(tag);
-              print(widget.dataProduct);
             },
             tagContainerDecoration: BoxDecoration(
               color: Colors.white,
@@ -83,6 +88,7 @@ class _BodyState extends State<Body> {
     );
   }
 
+
   Widget buildRow() {
     return Row(
       children: [
@@ -95,6 +101,7 @@ class _BodyState extends State<Body> {
                 hintText: "Search product",
                 prefixIcon: Icon(Icons.search)),
             onChanged: (value) {
+              List<Products> foundProducts = Utilities().find(value);
               setState(() {
                 Fluttertoast.showToast(msg: value.toString(),
                     toastLength: Toast.LENGTH_SHORT,
@@ -105,11 +112,11 @@ class _BodyState extends State<Body> {
                     fontSize: 16.0
                 );
                 if (value.isEmpty) {
-                  widget.dataProduct = <Products>[];
+                  widget.dataProduct;
                   return;
                 }
                 widget.dataProduct.clear();
-                // widget.dataProduct.addAll(Utilities().find(value));
+                widget.dataProduct.addAll(foundProducts);
               });
             },
           ),
@@ -119,7 +126,7 @@ class _BodyState extends State<Body> {
   }
 
   Widget buildContainer(BuildContext context) {
-    return Container(
+    return Container (
       width: MediaQuery
           .of(context)
           .size
@@ -133,7 +140,7 @@ class _BodyState extends State<Body> {
         mainAxisSize: MainAxisSize.max,
         children: [
           buildTag(context),
-          if (widget.dataProduct.length == 0)
+          if (widget.dataProduct.isEmpty)
             const Expanded(child: Center(child: Text("No item")))
           else
             Expanded(

@@ -32,6 +32,7 @@ class ProductItemList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(product);
     return Padding(
       padding: EdgeInsets.all(8.0),
       child: Container(

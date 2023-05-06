@@ -31,9 +31,6 @@ class _CategoriesStoreState extends State<CategoriesStore> {
           categories[i].img =
               Image.network('$uri/${categories[i].image}');
 
-          print(categories[i].image +
-              ' http://172.16.32.55:8000/${categories[i].image}');
-          setState(() {});
         }
       }
     }
@@ -100,7 +97,6 @@ class CategoriesItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(category.toString());
     return Container(
         width: 150,
         height: 150,

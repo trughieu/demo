@@ -2,10 +2,12 @@ import 'package:flutter/material.dart ';
 import 'package:flutter_svg/svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../homepage.dart';
 import '../../model/user.dart';
+import '../../model/userProvider.dart';
 import '../../model/utilities.dart';
 import '../../signup/signup_page.dart';
 
@@ -30,7 +32,6 @@ class _SignInFormState extends State<SignInForm> {
   late FToast fToast;
   String uri = Utilities.url;
 
-
   Future<http.Response> postRequest(String email, String pass) async {
     final response = await http.post(
       Uri.parse('$uri/api/users/signin'),
@@ -42,6 +43,8 @@ class _SignInFormState extends State<SignInForm> {
     print(email);
     print(response.statusCode);
     if (response.statusCode == 200) {
+      Provider.of<UserProvider>(context, listen: false).setUser(response.body);
+      print(response.body);
       Navigator.pushNamed(context, HomePage.routeName);
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text('Login success')));

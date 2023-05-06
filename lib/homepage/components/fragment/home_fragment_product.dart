@@ -22,22 +22,16 @@ class _ProductPopularState extends State<ProductPopular> {
     final response =
         await http.get(Uri.parse('$uri/api/foods'));
     if (response.statusCode == 200) {
-      print("asss" + response.body);
       final body = jsonDecode(response.body);
       var food = body['food'];
       for (var p in food) {
         setState(() {
           products.add(Products.fromJson(p as Map<String, dynamic>));
         });
+
         for (int i = 0; i < products.length; i++) {
           products[i].img =
               Image.network('$uri/${products[i].image}');
-
-          print(products[i].image +
-              ' http://172.16.32.55:8000/${products[i].image}');
-          setState(() {
-
-          });
         }
       }
     }
@@ -50,6 +44,7 @@ class _ProductPopularState extends State<ProductPopular> {
     super.initState();
     getProduct();
   }
+
 
   @override
   Widget build(BuildContext context) {

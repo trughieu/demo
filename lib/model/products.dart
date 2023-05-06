@@ -3,13 +3,16 @@ import 'package:flutter/material.dart';
 class Products {
   int id;
   String title;
+  String category;
   String description;
   String image;
   int price;
   Image? img;
 
   Products(
-      {required this.id,
+      {
+        required this.category,
+      required this.id,
       required this.title,
       required this.description,
       required this.image,
@@ -20,14 +23,16 @@ class Products {
       description: item['description'],
       title: item['title'],
       image: item['image'],
-      price: (item['price']),
+      price: item['price'],
+      category: item['category'],
       id: item['_id'],
     );
   }
 
+
   @override
   String toString() {
-    return 'Products{id: $id, title: $title, description: $description, image: $image, price: $price, img: $img}';
+    return 'Products{id: $id, title: $title, category: $category, description: $description, image: $image, price: $price, img: $img}';
   }
 
   Map<String, dynamic> toJson() {
@@ -36,6 +41,7 @@ class Products {
     data['title'] = title;
     data['image'] = image;
     data['id'] = id;
+    data['category']=category;
     return data;
   }
 

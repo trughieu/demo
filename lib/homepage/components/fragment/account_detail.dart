@@ -18,29 +18,85 @@ class _AccountDetailState extends State<AccountDetail> {
   final _conform = TextEditingController();
   String uri = Utilities.url;
 
-  void updateUserPassword
-      (String email, String oldPassword, String newPassword) async {
-    String apiUrl = 'https://your-api-url.com/user/updatePassword';
-    String authToken = 'your-auth-token';
+  void _changePassword() async {
+    String email = _email.text;
+    String newPassword = _password.text;
+    String confirmPassword = _conform.text;
 
-    Map<String, String> body = {
+    if (newPassword != confirmPassword) {
+      // Kiểm tra mật khẩu mới và mật khẩu xác nhận có khớp hay không
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Lỗi'),
+            content: Text('Mật khẩu mới và mật khẩu xác nhận không khớp.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    }
+
+    // Gửi request đổi mật khẩu đến server
+    var url = Uri.parse('$uri/api/users/changePassword');
+    var headers = {'Content-Type': 'application/json'};
+    var body = json.encode({
       'email': email,
-      'password': oldPassword,
-      'new_password': newPassword,
-    };
+      'newPassword': newPassword,
+    });
 
-    var response = await http.post(Uri.parse('$uri/api/users/updatePassword'),
-        body: json.encode(body));
+    var response = await http.post(url, headers: headers, body: body);
 
     if (response.statusCode == 200) {
-      // Cập nhật mật khẩu thành công.
-      print(response.body);
+      // Đổi mật khẩu thành công
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Thành công'),
+            content: Text('Mật khẩu đã được thay đổi thành công.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
     } else {
-      print(response.body);
-      print("fail");
-      // Xử lý lỗi từ máy chủ.
+      // Xử lý lỗi khi đổi mật khẩu
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Lỗi'),
+            content: Text('Đã xảy ra lỗi khi đổi mật khẩu.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
     }
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -71,10 +127,7 @@ class _AccountDetailState extends State<AccountDetail> {
               onPressed: () {
                 // Navigator.pop(context, email.text);
                 // updateUserPassword(mail, oldpass, newpass);
-                updateUserPassword(_email.text, _password.text, _conform.text);
-                print(_email.text);
-                print(_password.text);
-                print(_conform.text);
+                _changePassword();
               },
               style: ButtonStyle(
                 shape: MaterialStatePropertyAll(RoundedRectangleBorder(
@@ -148,6 +201,8 @@ class _AccountDetailState extends State<AccountDetail> {
   TextFormField conformTextFormField() {
     return TextFormField(
       controller: _conform,
+      keyboardType: TextInputType.visiblePassword,
+      obscureText: true,
       decoration: const InputDecoration(
           border: OutlineInputBorder(),
           hintText: "Re-enter your password",
@@ -157,7 +212,6 @@ class _AccountDetailState extends State<AccountDetail> {
         setState(() {
           _conform.text = valueconfirm!;
         });
-        ;
       },
     );
   }
@@ -165,6 +219,8 @@ class _AccountDetailState extends State<AccountDetail> {
   TextFormField passwordTextFormField() {
     return TextFormField(
       controller: _password,
+      keyboardType: TextInputType.visiblePassword,
+      obscureText: true,
       decoration: const InputDecoration(
           border: OutlineInputBorder(),
           hintText: "Enter your password",

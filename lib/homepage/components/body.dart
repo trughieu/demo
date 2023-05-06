@@ -2,10 +2,11 @@ import 'package:flutter/material.dart%20';
 
 import '../../homeheader.dart';
 import '../../menuheader.dart';
+import '../../model/notification_service.dart';
 import '../../model/utilities.dart';
 import 'fragment/account_detail.dart';
-import 'fragment/home_fragment.dart';
 import 'fragment/favorit_fragment.dart';
+import 'fragment/home_fragment.dart';
 import 'fragment/notification_detail.dart';
 
 class Body extends StatefulWidget {
@@ -19,9 +20,13 @@ class _BodyState extends State<Body> {
   var selectIndex = 0;
   var flag = true;
 
+  void initState() {
+    super.initState();
+    NotificationService.notificationService(context);
+  }
+
   @override
   Widget build(BuildContext context) {
-
     List<Widget> screen = [
       HomeDetail(),
       FavoriteDetail(Utilities.data),
@@ -46,7 +51,7 @@ class _BodyState extends State<Body> {
             }
           });
         },
-        items:  [
+        items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Home',
@@ -60,8 +65,8 @@ class _BodyState extends State<Body> {
             label: 'Notification',
           ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.account_circle),
-              label: 'Account',
+            icon: Icon(Icons.account_circle),
+            label: 'Account',
           ),
         ],
       ),
@@ -69,7 +74,8 @@ class _BodyState extends State<Body> {
         child: Column(
           children: [
             SizedBox(
-              height: 10,),
+              height: 10,
+            ),
             screen[selectIndex]
           ],
         ),

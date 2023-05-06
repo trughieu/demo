@@ -1,22 +1,44 @@
+import 'dart:convert';
+
 import 'package:demo/model/products.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:quiver/strings.dart';
 
 class Utilities {
-  static String url = "http://192.168.1.7:8000";
-
+  static String url = "http://172.20.82.205:8000";
+  static List<Products> products = [];
   static List<Products> data = [];
 
-  // Future<List<Products>> getProducts() async {
-  //   var res = await http.get(Uri.parse(url));
-  //   if (res.statusCode == 200) {
-  //     var content = res.body;
-  //     print(content.toString());
-  //     var arr = json.decode(content)['food'] as List;
-  //     return arr.map((e) => Products.fromJson(e)).toList();
-  //   }
-  //
-  //   return <Products>[];
-  // }
+  Future<List<Products>> getProducts() async {
+    var res = await http.get(Uri.parse('$url/api/foods'));
+    if (res.statusCode == 200) {
+      var content = res.body;
+      var arr = json.decode(content)['food'] as List;
+      products.addAll(arr.map((e) => Products.fromJson(e)).toList());
+      //
+      //   // Load images
+      for (int i = 0; i < products.length; i++) {
+        products[i].img =
+            Image.network('$url/${products[i].image}');
+      }
+      return products;
+    }
+    return <Products>[];
+  }
+
+  List<Products> find(String value) {
+    // getProducts().then((updatedProducts) {
+    //   // Cập nhật danh sách products với dữ liệu mới
+    //   products = updatedProducts;
+    // });
+    print(value);
+    print(products.length);
+    return products
+        .where((p) => p.category.toLowerCase().contains(value.toLowerCase()))
+        .toList();
+  }
+
   //
   // Future<List<Categories>> getCate() async {
   //   var res = await http.get(Uri.parse(url_cate));
@@ -79,10 +101,4 @@ class Utilities {
     }
     return null;
   }
-//
-// List<Products> find(String value) {
-//   return Products.init()
-//       .where((p) => p.title.toLowerCase().contains(value.toLowerCase()))
-//       .toList();
-// }
 }

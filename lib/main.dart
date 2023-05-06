@@ -1,15 +1,20 @@
-import 'package:demo/search/searchpage.dart';
-import 'package:demo/signin/signinpage.dart';
-import 'package:demo/signin_form/splashpage.dart';
-import 'package:demo/signup/signup_page.dart';
-import 'package:flutter/material.dart';
+import 'package:demo/model/notification_channel.dart';
 import 'package:demo/routes.dart';
-import 'package:provider/provider.dart';
+import 'package:demo/signin_form/splashpage.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'model/userProvider.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  await FirebaseMessaging.instance.getInitialMessage();
+  await NotificationMessage.init();
+  final fcmToken = await FirebaseMessaging.instance.getToken();
+
   // runApp(const MyApp());
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(
@@ -128,10 +133,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             Text(
               '$_counter',
-              style: Theme
-                  .of(context)
-                  .textTheme
-                  .headlineMedium,
+              style: Theme.of(context).textTheme.headlineMedium,
             ),
           ],
         ),
